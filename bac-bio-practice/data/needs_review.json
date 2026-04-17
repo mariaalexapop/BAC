@@ -1,0 +1,50 @@
+[
+  {
+    "source_file": "E-d-ANATOMIE-Simulare-judeteana-BAC-2026-BIHOR-din-28-ianuarie-2026-var-PDF.pdf",
+    "subject": "III",
+    "part_label": "1",
+    "number": "a",
+    "prompt": "a) Precizați trei sucuri digestive care intervin în transformarea chimică a proteinelor.",
+    "question_type": "multi_part"
+  },
+  {
+    "source_file": "E-d-ANATOMIE-Simulare-judeteana-BAC-2026-BIHOR-din-28-ianuarie-2026-var-PDF.pdf",
+    "subject": "III",
+    "part_label": "1",
+    "number": "b",
+    "prompt": "b) Scrieți un argument în favoarea afirmației: „Transformarea chimică a glucidelor începe în\ncavitatea bucală”.",
+    "question_type": "multi_part"
+  },
+  {
+    "source_file": "E-d-ANATOMIE-Simulare-judeteana-BAC-2026-BIHOR-din-28-ianuarie-2026-var-PDF.pdf",
+    "subject": "III",
+    "part_label": "1",
+    "number": "c",
+    "prompt": "c) Construiţi patru enunţuri afirmative, câte două pentru fiecare conţinut, utilizând limbajul\nştiinţific adecvat.\nFolosiţi, în acest scop, informaţii referitoare la următoarele conţinuturi:\n- Enteroc",
+    "question_type": "multi_part"
+  },
+  {
+    "source_file": "E-d-ANATOMIE-Simulare-judeteana-BAC-2026-BIHOR-din-28-ianuarie-2026-var-PDF.pdf",
+    "subject": "III",
+    "part_label": "2",
+    "number": "a",
+    "prompt": "a) Numiţi unul din cele trei segmente ale analizatorului auditiv; precizaţi două caracteristici ale\nsegmentului numit.",
+    "question_type": "multi_part"
+  },
+  {
+    "source_file": "E-d-ANATOMIE-Simulare-judeteana-BAC-2026-BIHOR-din-28-ianuarie-2026-var-PDF.pdf",
+    "subject": "III",
+    "part_label": "2",
+    "number": "b",
+    "prompt": "b) Explicați afirmația următoare: „Întreruperea fluxului de informaţii de la receptorii vizuali către aria\nvizuală afectează senzația vizuală.”",
+    "question_type": "multi_part"
+  },
+  {
+    "source_file": "E-d-ANATOMIE-Simulare-judeteana-BAC-2026-BIHOR-din-28-ianuarie-2026-var-PDF.pdf",
+    "subject": "III",
+    "part_label": "2",
+    "number": "c",
+    "prompt": "c) Alcătuiţi un minieseu intitulat „Funcția de conducere a măduvei spinării”, folosind informaţia\nştiinţifică adecvată.\nÎn acest scop, respectaţi următoarele etape:\n- enumerarea a şase noţiuni specifi",
+    "question_type": "essay"
+  }
+]
