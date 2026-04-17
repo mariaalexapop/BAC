@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Test {
+  id         String     @id
+  sourceFile String     @map("source_file")
+  baremFile  String     @map("barem_file")
+  year       Int?
+  ingestedAt DateTime   @default(now()) @map("ingested_at")
+  questions  Question[]
+
+  @@map("tests")
+}
+
+model Question {
+  id           String    @id
+  testId       String    @map("test_id")
+  subject      String
+  partLabel    String?   @map("part_label")
+  number       String
+  prompt       String
+  context      String?
+  questionType String    @map("question_type")
+  points       Int       @default(0)
+  baremAnswer  String    @default("") @map("barem_answer")
+  baremNotes   String?   @map("barem_notes")
+  imageRefs       String?   @map("image_refs")
+  topic           String?
+  falseCorrection String?   @map("false_correction")
+  exampleAnswer   String?   @map("example_answer")
+  test         Test      @relation(fields: [testId], references: [id])
+  attempts     Attempt[]
+
+  @@map("questions")
+}
+
+model Attempt {
+  id         Int       @id @default(autoincrement())
+  questionId String    @map("question_id")
+  sessionId  String?   @map("session_id")
+  shownAt    DateTime  @default(now()) @map("shown_at")
+  wasCorrect Boolean?  @map("was_correct")
+  userAnswer String?   @map("user_answer")
+  question   Question  @relation(fields: [questionId], references: [id])
+
+  @@map("attempts")
+}
