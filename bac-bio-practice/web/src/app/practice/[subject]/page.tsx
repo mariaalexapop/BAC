@@ -73,6 +73,12 @@ export default function PracticePage({
   const [correctCount, setCorrectCount] = useState(0);
 
   const [reviewing, setReviewing] = useState(false);
+  const [prevQuestion, setPrevQuestion] = useState<{
+    questions: Question[];
+    result: GradeResult;
+    userAnswer: string;
+  } | null>(null);
+  const [showingPrev, setShowingPrev] = useState(false);
 
   // True/false specific state
   const [tfVerdict, setTfVerdict] = useState<"A" | "F" | null>(null);
@@ -191,7 +197,19 @@ export default function PracticePage({
   };
 
   const handleNext = () => {
+    if (result && questions.length > 0) {
+      setPrevQuestion({ questions, result, userAnswer });
+    }
+    setShowingPrev(false);
     fetchQuestion();
+  };
+
+  const handlePrev = () => {
+    if (!prevQuestion) return;
+    setQuestions(prevQuestion.questions);
+    setResult(prevQuestion.result);
+    setUserAnswer(prevQuestion.userAnswer);
+    setShowingPrev(true);
   };
 
   const handleReview = async () => {
@@ -752,12 +770,22 @@ export default function PracticePage({
                   </button>
                 )}
 
-                <button
-                  onClick={handleNext}
-                  className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-xl transition-colors shadow-sm"
-                >
-                  Urmatoarea intrebare
-                </button>
+                <div className="flex gap-2">
+                  {prevQuestion && !showingPrev && (
+                    <button
+                      onClick={handlePrev}
+                      className="py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium rounded-xl transition-colors border border-gray-200 dark:border-gray-700"
+                    >
+                      &larr;
+                    </button>
+                  )}
+                  <button
+                    onClick={handleNext}
+                    className="flex-1 py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-xl transition-colors shadow-sm"
+                  >
+                    {showingPrev ? "Inapoi la intrebarea curenta" : "Urmatoarea intrebare"}
+                  </button>
+                </div>
                 <p className="text-center text-xs text-gray-400 dark:text-gray-500">
                   Apasa <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Space</kbd> pentru urmatoarea intrebare
                 </p>
