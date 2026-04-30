@@ -78,6 +78,11 @@ export default function PracticePage({
     result: GradeResult;
     userAnswer: string;
   } | null>(null);
+  const [savedCurrent, setSavedCurrent] = useState<{
+    questions: Question[];
+    result: GradeResult | null;
+    userAnswer: string;
+  } | null>(null);
   const [showingPrev, setShowingPrev] = useState(false);
 
   // True/false specific state
@@ -197,15 +202,27 @@ export default function PracticePage({
   };
 
   const handleNext = () => {
+    if (showingPrev && savedCurrent) {
+      // Returning from prev view — restore the saved current question
+      setQuestions(savedCurrent.questions);
+      setResult(savedCurrent.result);
+      setUserAnswer(savedCurrent.userAnswer);
+      setSavedCurrent(null);
+      setShowingPrev(false);
+      return;
+    }
     if (result && questions.length > 0) {
       setPrevQuestion({ questions, result, userAnswer });
     }
     setShowingPrev(false);
+    setSavedCurrent(null);
     fetchQuestion();
   };
 
   const handlePrev = () => {
     if (!prevQuestion) return;
+    // Save current question before showing previous
+    setSavedCurrent({ questions, result, userAnswer });
     setQuestions(prevQuestion.questions);
     setResult(prevQuestion.result);
     setUserAnswer(prevQuestion.userAnswer);
