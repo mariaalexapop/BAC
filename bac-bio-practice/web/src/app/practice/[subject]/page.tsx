@@ -225,7 +225,7 @@ export default function PracticePage({
             ? questions.map((qq) => `${qq.number}) ${qq.prompt}`).join("\n\n")
             : q.prompt,
           baremAnswer: result.baremAnswer,
-          baremNotes: q.baremNotes,
+          baremNotes: null,
           points: result.totalPoints,
           userAnswer,
           originalExplanation: result.explanation,
