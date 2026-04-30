@@ -407,6 +407,15 @@ export default function PracticePage({
         {/* Question(s) */}
         {questions.length > 0 && !loading && !error && (
           <div className="space-y-6">
+            {/* Back to previous question */}
+            {prevQuestion && !showingPrev && !result && (
+              <button
+                onClick={handlePrev}
+                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              >
+                &larr; Intrebarea anterioara
+              </button>
+            )}
             {/* Question header */}
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <span className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 rounded-md font-medium">
