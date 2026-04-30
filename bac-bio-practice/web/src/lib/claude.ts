@@ -33,7 +33,8 @@ Evaluează răspunsul elevului conform baremului oficial.
 Acceptă formulări echivalente și sinonime corecte din punct de vedere științific.
 Folosește contextul din manual pentru a verifica corectitudinea răspunsului.
 Răspunde ÎNTOTDEAUNA în limba română.
-Răspunde STRICT în format JSON, fără alte explicații în afara JSON-ului.`;
+Răspunde STRICT în format JSON, fără alte explicații în afara JSON-ului.
+Când răspunsul este incorect sau incomplet, explică ce lipsește și oferă un exemplu de răspuns corect bazat pe barem și pe contextul din manual.`;
 
     const userPrompt = `Întrebarea: ${question.prompt}
 
@@ -47,7 +48,7 @@ Evaluează răspunsul și răspunde în format JSON:
 {
   "isCorrect": true/false,
   "pointsAwarded": <număr între 0 și ${question.points}>,
-  "explanation": "<explicație scurtă în română, menționând ce a fost corect și ce a lipsit>"
+  "explanation": "<explicație în română: ce a fost corect, ce a lipsit, și un exemplu de răspuns complet corect bazat pe manual>"
 }`;
 
     const completion = await groq.chat.completions.create({
