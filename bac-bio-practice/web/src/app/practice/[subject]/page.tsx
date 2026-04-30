@@ -26,6 +26,7 @@ interface GradeResult {
   baremAnswer: string;
   exampleAnswer?: string | null;
   explanation: string;
+  modelAnswer?: string | null;
 }
 
 interface TopicInfo {
@@ -680,6 +681,17 @@ export default function PracticePage({
                     </p>
                     <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
                       {result.explanation}
+                    </p>
+                  </div>
+                )}
+
+                {result.modelAnswer && !result.isCorrect && (
+                  <div className="p-4 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-xl">
+                    <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wide mb-2">
+                      Raspuns model pentru punctaj maxim
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                      {result.modelAnswer}
                     </p>
                   </div>
                 )}

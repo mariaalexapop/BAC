@@ -12,6 +12,7 @@ interface GradeResult {
   isCorrect: boolean;
   pointsAwarded: number;
   explanation: string;
+  modelAnswer?: string;
 }
 
 const groq = new Groq();
@@ -34,7 +35,7 @@ Acceptă formulări echivalente și sinonime corecte din punct de vedere știin�
 Folosește contextul din manual pentru a verifica corectitudinea răspunsului.
 Răspunde ÎNTOTDEAUNA în limba română.
 Răspunde STRICT în format JSON, fără alte explicații în afara JSON-ului.
-Când răspunsul este incorect sau incomplet, explică ce lipsește și oferă un exemplu de răspuns corect bazat pe barem și pe contextul din manual.`;
+Când răspunsul este incorect sau incomplet, scrie un răspuns model complet — exact ce ar trebui să scrie un elev pentru punctaj maxim, bazat pe barem și pe contextul din manual.`;
 
     const userPrompt = `Întrebarea: ${question.prompt}
 
@@ -48,7 +49,8 @@ Evaluează răspunsul și răspunde în format JSON:
 {
   "isCorrect": true/false,
   "pointsAwarded": <număr între 0 și ${question.points}>,
-  "explanation": "<explicație în română: ce a fost corect, ce a lipsit, și un exemplu de răspuns complet corect bazat pe manual>"
+  "explanation": "<scurt feedback: ce a fost corect și ce a lipsit>",
+  "modelAnswer": "<răspunsul complet pe care ar trebui să-l scrie un elev pentru punctaj maxim, formulat ca și cum elevul ar scrie pe foaia de examen>"
 }`;
 
     const completion = await groq.chat.completions.create({
@@ -73,6 +75,7 @@ Evaluează răspunsul și răspunde în format JSON:
       isCorrect: Boolean(parsed.isCorrect),
       pointsAwarded: Number(parsed.pointsAwarded) || 0,
       explanation: String(parsed.explanation || ""),
+      modelAnswer: parsed.modelAnswer ? String(parsed.modelAnswer) : undefined,
     };
   } catch (error) {
     console.error("Groq grading error:", error);

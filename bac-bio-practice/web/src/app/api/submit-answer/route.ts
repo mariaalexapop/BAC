@@ -89,6 +89,7 @@ export async function POST(request: Request) {
         totalPoints,
         baremAnswer: combinedBarem,
         explanation: gradeResult.explanation,
+        modelAnswer: gradeResult.modelAnswer || null,
       });
     }
 
@@ -247,6 +248,7 @@ export async function POST(request: Request) {
       baremAnswer: question.baremAnswer,
       exampleAnswer: question.exampleAnswer || null,
       explanation: gradeResult.explanation,
+      modelAnswer: ("modelAnswer" in gradeResult && gradeResult.modelAnswer) || null,
     });
   } catch (error) {
     console.error("Error submitting answer:", error);
