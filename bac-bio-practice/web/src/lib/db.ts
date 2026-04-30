@@ -1,18 +1,18 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import path from "path";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: InstanceType<typeof PrismaClient> | undefined;
 };
 
 function createPrismaClient() {
-  const dbUrl = process.env.DATABASE_URL || "file:../../data/questions.db";
-  // Strip "file:" prefix for the adapter
-  const dbPath = dbUrl.replace(/^file:/, "");
-  const resolvedPath = path.resolve(/*turbopackIgnore: true*/ process.cwd(), dbPath);
+  const client = createClient({
+    url: process.env.TURSO_DATABASE_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  });
 
-  const adapter = new PrismaBetterSqlite3({ url: resolvedPath });
+  const adapter = new PrismaLibSQL(client);
   return new PrismaClient({ adapter });
 }
 

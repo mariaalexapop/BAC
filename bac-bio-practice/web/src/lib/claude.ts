@@ -1,3 +1,6 @@
+import Groq from "groq-sdk";
+import { searchChunks } from "@/lib/rag";
+
 interface GradeInput {
   prompt: string;
   baremAnswer: string;
@@ -11,17 +14,24 @@ interface GradeResult {
   explanation: string;
 }
 
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3.1";
+const groq = new Groq();
 
 export async function gradeAnswer(
   question: GradeInput,
   userAnswer: string
 ): Promise<GradeResult> {
   try {
+    // Find relevant textbook context using RAG
+    const ragQuery = `${question.prompt} ${question.baremAnswer}`;
+    const relevantChunks = searchChunks(ragQuery, 2);
+    const ragContext = relevantChunks.length > 0
+      ? `\nContext din manual:\n${relevantChunks.join("\n---\n")}\n`
+      : "";
+
     const systemPrompt = `Ești un profesor de biologie care corectează lucrări pentru Bacalaureat.
 Evaluează răspunsul elevului conform baremului oficial.
 Acceptă formulări echivalente și sinonime corecte din punct de vedere științific.
+Folosește contextul din manual pentru a verifica corectitudinea răspunsului.
 Răspunde ÎNTOTDEAUNA în limba română.
 Răspunde STRICT în format JSON, fără alte explicații în afara JSON-ului.`;
 
@@ -30,7 +40,7 @@ Răspunde STRICT în format JSON, fără alte explicații în afara JSON-ului.`;
 Răspunsul corect din barem: ${question.baremAnswer}
 ${question.baremNotes ? `Note barem: ${question.baremNotes}` : ""}
 Punctaj maxim: ${question.points} puncte
-
+${ragContext}
 Răspunsul elevului: ${userAnswer}
 
 Evaluează răspunsul și răspunde în format JSON:
@@ -40,28 +50,17 @@ Evaluează răspunsul și răspunde în format JSON:
   "explanation": "<explicație scurtă în română, menționând ce a fost corect și ce a lipsit>"
 }`;
 
-    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: OLLAMA_MODEL,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        stream: false,
-        options: {
-          temperature: 0.3,
-        },
-      }),
+    const completion = await groq.chat.completions.create({
+      model: "gemma2-9b-it",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.3,
+      max_tokens: 512,
     });
 
-    if (!res.ok) {
-      throw new Error(`Ollama returned ${res.status}: ${await res.text()}`);
-    }
-
-    const data = await res.json();
-    const responseText = data.message?.content || "";
+    const responseText = completion.choices[0]?.message?.content || "";
 
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -75,18 +74,12 @@ Evaluează răspunsul și răspunde în format JSON:
       explanation: String(parsed.explanation || ""),
     };
   } catch (error) {
-    console.error("Ollama grading error:", error);
-
-    const normalizedUser = userAnswer.trim().toLowerCase();
-    const normalizedBarem = question.baremAnswer.trim().toLowerCase();
-    const isExactMatch = normalizedUser === normalizedBarem;
+    console.error("Groq grading error:", error);
 
     return {
-      isCorrect: isExactMatch,
-      pointsAwarded: isExactMatch ? question.points : 0,
-      explanation: isExactMatch
-        ? "Răspunsul tău este corect."
-        : `Răspunsul corect conform baremului: ${question.baremAnswer}. Verificarea automată cu AI nu a fost disponibilă.`,
+      isCorrect: false,
+      pointsAwarded: 0,
+      explanation: "AI-ul nu a putut fi contactat. Verifică conexiunea și încearcă din nou.",
     };
   }
 }
