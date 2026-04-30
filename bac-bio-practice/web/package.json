@@ -7,7 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start --port 3001",
     "prod": "next build && next start --port 3001",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sync-db": "./scripts/sync-to-turso.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
