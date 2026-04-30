@@ -72,6 +72,8 @@ export default function PracticePage({
   const [answeredCount, setAnsweredCount] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
 
+  const [reviewing, setReviewing] = useState(false);
+
   // True/false specific state
   const [tfVerdict, setTfVerdict] = useState<"A" | "F" | null>(null);
   const [tfCorrection, setTfCorrection] = useState("");
@@ -190,6 +192,50 @@ export default function PracticePage({
 
   const handleNext = () => {
     fetchQuestion();
+  };
+
+  const handleReview = async () => {
+    if (!result || !questions.length) return;
+    setReviewing(true);
+    try {
+      const q = questions[0];
+      const res = await fetch("/api/review-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: isGrouped
+            ? questions.map((qq) => `${qq.number}) ${qq.prompt}`).join("\n\n")
+            : q.prompt,
+          baremAnswer: result.baremAnswer,
+          baremNotes: q.baremNotes,
+          points: result.totalPoints,
+          userAnswer,
+          originalExplanation: result.explanation,
+          originalPoints: result.pointsAwarded,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResult((prev) =>
+          prev
+            ? {
+                ...prev,
+                isCorrect: data.isCorrect,
+                pointsAwarded: data.pointsAwarded,
+                explanation: data.explanation,
+                modelAnswer: data.modelAnswer,
+              }
+            : prev
+        );
+        if (data.isCorrect && !result.isCorrect) {
+          setCorrectCount((c) => c + 1);
+        }
+      }
+    } catch (err) {
+      console.error("Review error:", err);
+    } finally {
+      setReviewing(false);
+    }
   };
 
   const handleTopicChange = (topic: string | null) => {
@@ -694,6 +740,16 @@ export default function PracticePage({
                       {result.modelAnswer}
                     </p>
                   </div>
+                )}
+
+                {!result.isCorrect && (
+                  <button
+                    onClick={handleReview}
+                    disabled={reviewing}
+                    className="w-full py-2.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-medium text-sm rounded-xl transition-colors border border-amber-200 dark:border-amber-700 disabled:opacity-50"
+                  >
+                    {reviewing ? "Se re-evaluează..." : "Contestă evaluarea"}
+                  </button>
                 )}
 
                 <button
