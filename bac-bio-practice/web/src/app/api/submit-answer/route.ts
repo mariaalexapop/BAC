@@ -1,21 +1,6 @@
 import { prisma } from "@/lib/db";
 import { gradeAnswer } from "@/lib/claude";
 
-/** Normalize text for comparison: lowercase, strip diacritics, collapse whitespace, remove punctuation */
-function normalizeForComparison(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // strip diacritics
-    .toLowerCase()
-    .replace(/[.,;:!?'"()[\]{}]/g, "") // strip punctuation
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/** Check if two texts are semantically the same after normalization */
-function textsMatch(a: string, b: string): boolean {
-  return normalizeForComparison(a) === normalizeForComparison(b);
-}
 
 export async function POST(request: Request) {
   try {
@@ -180,19 +165,12 @@ export async function POST(request: Request) {
             totalPointsOverride: totalPoints,
             explanation: `Ai identificat corect că afirmația este falsă (${verdictPoints}p), dar nu ai oferit corectarea. Corectare așteptată: ${question.falseCorrection || ""}`,
           };
-        } else if (question.falseCorrection && textsMatch(correctionText, question.falseCorrection)) {
-          // Deterministic match — correction matches expected answer
-          gradeResult = {
-            isCorrect: true,
-            pointsAwarded: verdictPoints + correctionPoints,
-            totalPointsOverride: totalPoints,
-            explanation: "Răspuns corect! Ai identificat corect că afirmația este falsă și ai oferit corectarea corectă.",
-          };
         } else {
-          // Fall back to LLM for non-obvious corrections
+          // Always use LLM to evaluate the correction — accept any
+          // scientifically valid reformulation, not just exact DB match
           const correctionGrade = await gradeAnswer(
             {
-              prompt: `Afirmația originală: ${question.prompt}\nElevul a identificat corect că este falsă. Evaluează doar corectarea oferită de elev.`,
+              prompt: `Afirmația originală (FALSĂ): ${question.prompt}\n\nElevul a identificat corect că este falsă. Evaluează dacă corectarea oferită de elev transformă afirmația într-una adevărată din punct de vedere științific. Acceptă orice formulare corectă, nu doar cea din barem.`,
               baremAnswer: question.falseCorrection || question.baremNotes || "",
               baremNotes: null,
               points: correctionPoints,
