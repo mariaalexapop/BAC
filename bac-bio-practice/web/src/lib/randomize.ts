@@ -41,9 +41,11 @@ export async function getNextQuestion(
 
   const totalCount = allQuestions.length;
   const skipExclusion = totalCount < 5;
+  // Exclude up to 85% of the pool so students cycle through nearly all
+  // questions before seeing repeats
   const excludeCount = skipExclusion
     ? 0
-    : Math.min(50, Math.floor(totalCount * 0.3));
+    : Math.max(1, Math.floor(totalCount * 0.85));
 
   // Get recent attempts to exclude recently shown questions
   const allIds = new Set(allQuestions.map((q) => q.id));
@@ -70,17 +72,6 @@ export async function getNextQuestion(
 
   if (candidateIds.length === 0) {
     candidateIds = allQuestions.map((q) => q.id);
-  }
-
-  // For large pools, pick a random subset to query stats for (avoid huge IN clause)
-  const MAX_CANDIDATES = 200;
-  if (candidateIds.length > MAX_CANDIDATES) {
-    // Shuffle and take a subset
-    for (let i = candidateIds.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [candidateIds[i], candidateIds[j]] = [candidateIds[j], candidateIds[i]];
-    }
-    candidateIds = candidateIds.slice(0, MAX_CANDIDATES);
   }
 
   const candidatesWithStats = await prisma.question.findMany({
@@ -121,9 +112,10 @@ export async function getNextQuestion(
     return aLastSeen - bLastSeen;
   });
 
-  const topThirdCount = Math.max(1, Math.ceil(candidatesWithStats.length / 3));
-  const topThird = candidatesWithStats.slice(0, topThirdCount);
-  const selected = topThird[Math.floor(Math.random() * topThird.length)];
+  // Pick randomly from the top 10% least-seen questions for better diversity
+  const topCount = Math.max(1, Math.ceil(candidatesWithStats.length * 0.1));
+  const topCandidates = candidatesWithStats.slice(0, topCount);
+  const selected = topCandidates[Math.floor(Math.random() * topCandidates.length)];
 
   await prisma.attempt.create({
     data: {
