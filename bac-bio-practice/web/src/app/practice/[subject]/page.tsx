@@ -89,6 +89,10 @@ export default function PracticePage({
   const [tfVerdict, setTfVerdict] = useState<"A" | "F" | null>(null);
   const [tfCorrection, setTfCorrection] = useState("");
 
+  // Contestation state
+  const [showContestBox, setShowContestBox] = useState(false);
+  const [contestReason, setContestReason] = useState("");
+
   // Topic state
   const [topics, setTopics] = useState<TopicInfo[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
@@ -129,6 +133,8 @@ export default function PracticePage({
     setUserAnswer("");
     setTfVerdict(null);
     setTfCorrection("");
+    setShowContestBox(false);
+    setContestReason("");
 
     try {
       const res = await fetch("/api/next-question", {
@@ -247,6 +253,7 @@ export default function PracticePage({
           userAnswer,
           originalExplanation: result.explanation,
           originalPoints: result.pointsAwarded,
+          contestReason: contestReason.trim() || null,
         }),
       });
       const data = await res.json();
@@ -786,14 +793,33 @@ export default function PracticePage({
                   </div>
                 )}
 
-                {!result.isCorrect && (
+                {!result.isCorrect && !showContestBox && (
                   <button
-                    onClick={handleReview}
-                    disabled={reviewing}
-                    className="w-full py-2.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-medium text-sm rounded-xl transition-colors border border-amber-200 dark:border-amber-700 disabled:opacity-50"
+                    onClick={() => setShowContestBox(true)}
+                    className="w-full py-2.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-medium text-sm rounded-xl transition-colors border border-amber-200 dark:border-amber-700"
                   >
-                    {reviewing ? "Se re-evaluează..." : "Contestă evaluarea"}
+                    Contestă evaluarea
                   </button>
+                )}
+
+                {!result.isCorrect && showContestBox && (
+                  <div className="space-y-2">
+                    <textarea
+                      value={contestReason}
+                      onChange={(e) => setContestReason(e.target.value)}
+                      disabled={reviewing}
+                      placeholder="Explică de ce consideri că răspunsul tău este corect..."
+                      rows={3}
+                      className="w-full p-3 rounded-xl border-2 border-amber-200 dark:border-amber-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 dark:focus:ring-amber-900 outline-none transition-all resize-y text-sm disabled:opacity-60"
+                    />
+                    <button
+                      onClick={handleReview}
+                      disabled={reviewing}
+                      className="w-full py-2.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 font-medium text-sm rounded-xl transition-colors border border-amber-200 dark:border-amber-700 disabled:opacity-50"
+                    >
+                      {reviewing ? "Se re-evaluează..." : "Trimite contestația"}
+                    </button>
+                  </div>
                 )}
 
                 <div className="flex gap-2">

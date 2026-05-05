@@ -96,6 +96,7 @@ interface ReviewInput {
   userAnswer: string;
   originalExplanation: string;
   originalPoints: number;
+  contestReason?: string | null;
 }
 
 export async function reviewAnswer(input: ReviewInput): Promise<GradeResult> {
@@ -126,7 +127,8 @@ Răspunsul elevului: ${input.userAnswer}
 Evaluarea inițială: ${input.originalPoints}/${input.points} puncte
 Explicația inițială: ${input.originalExplanation}
 
-Elevul contestă această evaluare. Re-evaluează cu atenție și răspunde în format JSON:
+Elevul contestă această evaluare.${input.contestReason ? `\nMotivul contestației: ${input.contestReason}` : ""}
+Re-evaluează cu atenție, ținând cont de argumentele elevului, și răspunde în format JSON:
 {
   "isCorrect": true/false,
   "pointsAwarded": <număr între 0 și ${input.points}>,

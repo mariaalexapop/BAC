@@ -11,6 +11,7 @@ export async function POST(request: Request) {
       userAnswer,
       originalExplanation,
       originalPoints,
+      contestReason,
     } = body;
 
     if (!prompt || !baremAnswer || !userAnswer) {
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
       userAnswer,
       originalExplanation: originalExplanation || "",
       originalPoints: Number(originalPoints) || 0,
+      contestReason: contestReason || null,
     });
 
     return Response.json({
